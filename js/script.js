@@ -40,16 +40,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // ===================== валідація та відпрвка email ======================
 
-const form = document.querySelector('.main-block__form .form');
-const emailInput = form.querySelector('input[type="text"]');
-const submitButton = form.querySelector('button[type="submit"]');
-
+// Функція для перевірки емейлу за допомогою регулярного виразу
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validateEmail(email) {
     return emailRegex.test(email);
 }
 
+// Функція показу помилки
 function showError(input, message) {
     input.classList.add('error');
     let errorElement = input.parentElement.querySelector('.error-message');
@@ -61,6 +59,7 @@ function showError(input, message) {
     errorElement.textContent = message;
 }
 
+// Функція видалення помилки
 function removeError(input) {
     input.classList.remove('error');
     const errorElement = input.parentElement.querySelector('.error-message');
@@ -69,37 +68,44 @@ function removeError(input) {
     }
 }
 
-emailInput.addEventListener('focus', function () {
-    this.placeholder = '';
+// Обробка всіх форм на сайті
+document.querySelectorAll('form').forEach(form => {
+    const emailInput = form.querySelector('input[type="text"]');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    emailInput.addEventListener('focus', function () {
+        this.placeholder = '';
+    });
+
+    emailInput.addEventListener('blur', function () {
+        if (this.value === '') {
+            this.placeholder = 'Enter your email';
+        }
+    });
+
+    emailInput.addEventListener('input', function () {
+        removeError(this);
+    });
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const email = emailInput.value.trim();
+
+        if (email === '') {
+            showError(emailInput, 'Email is required');
+        } else if (!validateEmail(email)) {
+            showError(emailInput, 'Please enter a valid email');
+        } else {
+            removeError(emailInput);
+            // Отримання даних форми і їх подальше використання (наприклад, відправлення даних)
+
+            // Опціонально: скидання форми після успішної відправки
+            form.reset();
+        }
+    });
 });
 
-emailInput.addEventListener('blur', function () {
-    if (this.value === '') {
-        this.placeholder = 'Enter your email';
-    }
-});
-
-emailInput.addEventListener('input', function () {
-    removeError(this);
-});
-
-form.addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const email = emailInput.value.trim();
-
-    if (email === '') {
-        showError(emailInput, 'Email is required');
-    } else if (!validateEmail(email)) {
-        showError(emailInput, 'Please enter a valid email');
-    } else {
-        removeError(emailInput);
-        // sendMail(email);
-        // submitButton.removeAttribute('disabled');
-        console.log(email);
-        form.reset(); // Розкоментуйте, якщо хочете скинути форму після успішної відправки
-    }
-});
 
 // async function sendMail(email) {
 //     try {
